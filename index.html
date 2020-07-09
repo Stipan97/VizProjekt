@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        .proizvodnja {
+            fill: #453daf;
+        }
+
+        .potrosnja {
+            fill: #6dc25a;
+        }
+
+        .uvoz {
+            fill: #30baf0;
+        }
+
+        .izvoz {
+            fill: #9f4ee0;
+        }
+
+        .zasticena {
+            fill: #c8fac3;
+        }
+
+        .sortna {
+            fill: #e6af67;
+        }
+
+        .ostala {
+            fill: #bfd5f2;
+        }
+
+        #custom-handle {
+            width: 3em;
+            height: 1.6em;
+            top: 50%;
+            margin-top: -.8em;
+            text-align: center;
+            line-height: 1.6em;
+        }
+
+        #tooltip {
+            position: absolute;
+            width: 200px;
+            height: auto;
+            padding: 10px;
+            background-color: white;
+            -webkit-border-radius: 10px;
+            -moz-border-radius: 10px;
+            border-radius: 10px;
+            -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+            -mox-box-shadow: 4px 4px 4px 10px rgba(0, 0, 0, 0.4);
+            box-shadow: 4px 4px 10px rbga(0, 0, 0, 0.4);
+            pointer-events: none;
+        }
+
+        #tooltip.hidden {
+            opacity: 0;
+        }
+
+        #tooltip p {
+            margin: 0;
+            font-family: sans-serif;
+            font-size: 16px;
+            line-height: 20px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var margin = 200
+        var height = 500 - margin
+        var width = 600 - margin
+        var slideValue = 0
+
+        var svg = d3.select("body")
+                .append("svg")
+                .attr("height", 800)
+                .attr("width", 1900)
+
+        var xScale = d3.scaleBand()
+                .range([0, width])
+                .padding(0.2)
+                    
+        var yScale = d3.scaleLinear()
+                .range([height, 0])
+
+        var prvi = svg.append("g")
+                    .attr("transform", "translate(" + 100 + "," + 100 + ")")
+
+        var drugi = svg.append("g")
+                    .attr("transform", "translate(" + 600 + "," + 100 + ")")
+
+        var stanovnik = svg.append("g")
+                    .attr("transform", "translate(" + 1100 + "," + 450 + ")")
+                    .attr("class", "poStanovniku")
+
+        var treci = svg.append("g")
+                    .attr("transform", "translate(" + 1100 + "," + 100 + ")")
+
+        var prviLegend = [
+            {
+                name: "Proizvodnja",
+                color: "#453daf"
+            },
+            {
+                name: "Potrošnja",
+                color: "#6dc25a"
+            }
+        ]
+
+        var drugiLegend = [
+            {
+                name: "Uvoz",
+                color: "#30baf0"
+            },
+            {
+                name: "Izvoz",
+                color: "#9f4ee0"
+            }
+        ]
+
+        d3.json("wine.json", function(error, data) {
+            if (error) {
+                throw error
+            }
+
+            //potrosnja proizvodnja
+            xScale.domain(data.map(function(d) {
+                return d.godina
+            }))
+
+            yScale.domain([0, d3.max(data, function(d) {
+                return d.potrosnja.ukupno + 100
+            })]);
+
+            prvi.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xScale))
+                .append("text")
+                .attr("fill", "#000")
+                .attr("x", width)
+                .attr("y", 9)
+                .attr("dy", "0.71em")
+                .text("Godina")
+
+
+            prvi.append("g")
+                .call(d3.axisLeft(yScale)
+                        .tickFormat(function(d) {
+                            return d
+                        }))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .attr("fill", "#000")
+                .text("Vrijednost hl * 10^3")
+            
+            var barGroup = prvi.selectAll(".bar")
+                .data(data)
+                .enter()
+
+            barGroup.append("rect")
+                .attr("class", "proizvodnja")
+                .attr("x", function(d) {
+                    return xScale(d.godina)
+                })
+                .attr("y", function(d) {
+                    return yScale(0)
+                })
+                .attr("width", xScale.bandwidth()/2)
+                .attr("height", function(d) {
+                    return height - yScale(0)
+                })
+                .on("click", function(d) {
+                    if(d3.select(this).attr("x") == xScale(d.godina)) {
+                        leftPie(d.proizvodnja)
+                    }
+                })
+                .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(d.proizvodnja.ukupno + "hl * 10^3")
+                            slice.select("#vrsta")
+                                .text(d.godina + ".")
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+
+            barGroup.selectAll(".proizvodnja")
+                    .transition()
+                    .delay(function(d) {
+                        return Math.random()*1000
+                    })
+                    .duration(1000)
+                    .attr("y", function(d) {
+                        return yScale(d.proizvodnja.ukupno)
+                    })
+                    .attr("height", function(d) {
+                        return height - yScale(d.proizvodnja.ukupno)
+                    })
+
+            barGroup.append("rect")
+                .attr("class", "potrosnja")
+                .attr("x", function(d) {
+                    return xScale(d.godina) + xScale.bandwidth()/2
+                })
+                .attr("y", function(d) {
+                    return yScale(0)
+                })
+                .attr("width", xScale.bandwidth()/2)
+                .attr("height", function(d) {
+                    return height - yScale(0)
+                })
+                .on("click", function(d) {
+                    if(d3.select(this).attr("x") == xScale(d.godina) + xScale.bandwidth()/2) {
+                        leftPie(d.potrosnja)
+                    }
+                })
+                .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(d.potrosnja.ukupno + "hl * 10^3")
+                            slice.select("#vrsta")
+                                .text(d.godina + ".")
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+
+            barGroup.selectAll(".potrosnja")
+                    .transition()
+                    .delay(function(d) {
+                        return Math.random()*1000
+                    })
+                    .duration(1000)
+                    .attr("y", function(d) {
+                        return yScale(d.potrosnja.ukupno)
+                    })
+                    .attr("height", function(d) {
+                        return height - yScale(d.potrosnja.ukupno)
+                    })
+
+            var legendF = svg.selectAll(".legendF")
+                            .data(prviLegend)
+                            .enter()
+                            .append("g")
+                            .attr("class", "legendF")
+                            .attr("transform", function(d, i) {
+                                return "translate(75, " + i * 20 + ")"
+                            })
+
+            legendF.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", function(d) { 
+                    return d.color
+                })
+
+            legendF.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) {
+                    return d.name
+                })
+
+            //uvoz izvoz
+            xScale.domain(data.map(function(d) {
+                return d.godina
+            }))
+            
+            yScale.domain([0, d3.max(data, function(d) {
+                return d.uvoz.ukupno + 50
+            })]);
+
+            drugi.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xScale))
+                .append("text")
+                .attr("fill", "#000")
+                .attr("x", width)
+                .attr("y", 9)
+                .attr("dy", "0.71em")
+                .text("Godina")
+
+            drugi.append("g")
+                .call(d3.axisLeft(yScale)
+                        .tickFormat(function(d) {
+                            return d
+                        }))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .attr("fill", "#000")
+                .text("Vrijednost hl * 10^3")
+            
+            var barGroup = drugi.selectAll(".bar")
+                .data(data)
+                .enter()
+
+            barGroup.append("rect")
+                .attr("class", "uvoz")
+                .attr("x", function(d) {
+                    return xScale(d.godina)
+                })
+                .attr("y", function(d) {
+                    return yScale(0)
+                })
+                .attr("width", xScale.bandwidth()/2)
+                .attr("height", function(d) {
+                    return height - yScale(0)
+                })
+                .on("click", function(d) {
+                    if(d3.select(this).attr("x") == xScale(d.godina)) {
+                        rightPie(d.uvoz)
+                    }
+                })
+                .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(d.uvoz.ukupno + "hl * 10^3")
+                            slice.select("#vrsta")
+                                .text(d.godina + ".")
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+
+            barGroup.selectAll(".uvoz")
+                    .transition()
+                    .delay(function(d) {
+                        return Math.random()*1000
+                    })
+                    .duration(1000)
+                    .attr("y", function(d) {
+                        return yScale(d.uvoz.ukupno)
+                    })
+                    .attr("height", function(d) {
+                        return height - yScale(d.uvoz.ukupno)
+                    })
+
+            barGroup.append("rect")
+                .attr("class", "izvoz")
+                .attr("x", function(d) {
+                    return xScale(d.godina) + xScale.bandwidth()/2
+                })
+                .attr("y", function(d) {
+                    return yScale(0)
+                })
+                .attr("width", xScale.bandwidth()/2)
+                .attr("height", function(d) {
+                    return height - yScale(0)
+                })
+                .on("click", function(d) {
+                    if(d3.select(this).attr("x") == xScale(d.godina) + xScale.bandwidth()/2) {
+                        rightPie(d.izvoz)
+                    }
+                })
+                .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(d.izvoz.ukupno + "hl * 10^3")
+                            slice.select("#vrsta")
+                                .text(d.godina + ".")
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+            
+            barGroup.selectAll(".izvoz")
+                    .transition()
+                    .delay(function(d) {
+                        return Math.random()*1000
+                    })
+                    .duration(1000)
+                    .attr("y", function(d) {
+                        return yScale(d.izvoz.ukupno)
+                    })
+                    .attr("height", function(d) {
+                        return height - yScale(d.izvoz.ukupno)
+                    })
+
+            var legendS = svg.selectAll(".legendS")
+                .data(drugiLegend)
+                .enter()
+                .append("g")
+                .attr("class", "legendS")
+                .attr("transform", function(d, i) {
+                    return "translate(575, " + i * 20 + ")"
+                })
+
+            legendS.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", function(d) { 
+                    return d.color
+                })
+
+            legendS.append("text")
+                .attr("x", width - 24)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "end")
+                .text(function(d) {
+                    return d.name
+                })
+
+            //cetvrti graf
+            xScale.domain(data.map(function(d) {
+                return d.godina
+            }))
+            
+            yScale.domain([0, d3.max(data, function(d) {
+                return d.stanovnik.ukupno + 5
+            })]);
+
+            treci.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(xScale))
+                .append("text")
+                .attr("fill", "#000")
+                .attr("x", width)
+                .attr("y", 9)
+                .attr("dy", "0.71em")
+                .text("Godina")
+
+            treci.append("g")
+                .call(d3.axisLeft(yScale)
+                        .tickFormat(function(d) {
+                            return d
+                        }))
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .attr("fill", "#000")
+                .text("Litra po stanovniku")
+
+            treci.append("path")
+                .datum(data)
+                .attr("fill", "none")
+                .attr("stroke", "steelblue")
+                .attr("stroke-width", 1.5)
+                .attr("d", d3.line()
+                    .x(function(d) {
+                        return xScale(d.godina)
+                    })
+                    .y(function(d) {
+                        return yScale(d.stanovnik.ukupno)
+                    })
+                    .curve(d3.curveBasis)
+                )
+
+            $(function() {
+                var handle = $("#custom-handle")
+                $("#slider").slider({
+                    value: 0,
+                    min: 0,
+                    max: 5,
+                    step: 1,
+                    create: function() {
+                        handle.text($(this).slider("value") + 2012 + ".")
+                        stanovnikPotrosnja(data, slideValue)
+                    },
+                    slide: function( event, ui ) {
+                        slideValue = ui.value
+                        handle.text(ui.value + 2012 + ".");
+                        stanovnikPotrosnja(data, slideValue)
+                    }
+                })
+            })
+        })
+
+        function leftPie(data) {
+            svg.select(".leftPie").remove()
+
+            var position = svg.append("g")
+                    .attr("transform", "translate(" + 300 + "," + 600 + ")")
+                    .attr("class", "leftPie")
+
+            makePie(data, position)
+        }
+
+        function rightPie(data) {
+            svg.select(".rightPie").remove()
+
+            var position = svg.append("g")
+                    .attr("transform", "translate(" + 800 + "," + 600 + ")")
+                    .attr("class", "rightPie")
+                    
+            makePie(data, position)
+        }
+
+        function makePie(data, position) {
+            var radius = 100
+
+            var info = [
+                {
+                    name: "Zaštićena",
+                    tooltip: "Zaštićena Vina",
+                    value: data.zasticena,
+                    color: "#f0e069"
+                },
+                {
+                    name: "Sortna",
+                    tooltip: "Sortna Vina",
+                    value: data.sortna,
+                    color: "#5ccc90"
+                },
+                {
+                    name: "Ostala",
+                    tooltip: "Ostala Vina",
+                    value: data.ostala,
+                    color: "cornflowerblue"
+                }
+            ]
+
+            var pie = d3.pie()
+                        .value(function(d) {
+                            return d.value
+                        });
+
+            var arc = d3.arc()
+                        .innerRadius(0)
+                        .outerRadius(radius)
+
+            var arcs = position.selectAll(".arc")
+                        .data(pie(info))
+                        .enter()
+                        .append("g")
+                        .attr("class", "arc")
+                        .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(Math.round((d.value/data.ukupno*100 + Number.EPSILON) * 100) / 100 + "%")
+                            slice.select("#vrsta")
+                                .text(d.data.tooltip)
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+
+            arcs.append("path")
+                .attr("d", arc)
+                .attr("fill", function(d) {
+                    return d.data.color;
+                })
+
+            arcs.append("text")
+                .attr("transform", function(d) {
+                    var namePosition = arc.centroid(d);
+                    namePosition[0] *= 2.7;
+                    namePosition[1] *= 2.7;
+                    return "translate("+namePosition+")";
+                })
+                .text(function(d) {
+                    return d.data.name;
+                })
+                .attr("text-anchor", "middle");
+
+            
+        }
+
+        function stanovnikPotrosnja(data, slideValue) {
+            svg.select(".poStanovniku").selectAll("*").remove()
+
+            var x = d3.scaleBand()
+                    .range([0, width])
+                    .domain(["Zaštićena", "Sortna", "Ostala"])
+                    .padding(0.2)
+
+            yScale.domain([0, data[0].stanovnik.ostala + 3]);
+
+            stanovnik.append("g")
+                .attr("transform", "translate(0," + height + ")")
+                .call(d3.axisBottom(x))
+                .append("text")
+                .attr("fill", "#000")
+                .attr("x", width)
+                .attr("y", 9)
+                .attr("dy", "0.71em")
+                .text("Grupa Vina")
+
+            stanovnik.append("g")
+                .call(d3.axisLeft(yScale)
+                        .tickFormat(function(d) {
+                            return d
+                        })
+                    )
+                .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .attr("fill", "#000")
+                .text("Litra po stanovniku")
+            
+            var barGroup = stanovnik.selectAll(".bar")
+                .data(data)
+                .enter()
+
+            barGroup.append("rect")
+                .attr("class", "zasticena")
+                .attr("x", x("Zaštićena"))
+                .attr("y", yScale(0))
+                .attr("width", x.bandwidth())
+                .attr("height", height - yScale(0))
+                .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(data[slideValue].stanovnik.zasticena + " l/stan")
+                            slice.select("#vrsta")
+                                .text("Zaštićena Vina")
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+
+            barGroup.selectAll(".zasticena")
+                    .transition()
+                    .delay(function(d) {
+                        return Math.random()*1000
+                    })
+                    .duration(1000)
+                    .attr("y", function(d) {
+                        return yScale(data[slideValue].stanovnik.zasticena)
+                    })
+                    .attr("height", function(d) {
+                        return height - yScale(data[slideValue].stanovnik.zasticena)
+                    })
+
+            barGroup.append("rect")
+                .attr("class", "sortna")
+                .attr("x", x("Sortna"))
+                .attr("y", yScale(0))
+                .attr("width", x.bandwidth())
+                .attr("height", height - yScale(0))
+                .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(data[slideValue].stanovnik.sortna + " l/stan")
+                            slice.select("#vrsta")
+                                .text("Sortna Vina")
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+
+            barGroup.selectAll(".sortna")
+                    .transition()
+                    .delay(function(d) {
+                        return Math.random()*1000
+                    })
+                    .duration(1000)
+                    .attr("y", function(d) {
+                        return yScale(data[slideValue].stanovnik.sortna)
+                    })
+                    .attr("height", function(d) {
+                        return height - yScale(data[slideValue].stanovnik.sortna)
+                    })
+
+            barGroup.append("rect")
+                .attr("class", "ostala")
+                .attr("x", x("Ostala"))
+                .attr("y", yScale(0))
+                .attr("width", x.bandwidth())
+                .attr("height", height - yScale(0))
+                .on("mouseover", function (d) {
+                            var slice = d3.select("#tooltip")
+                                .style("left", d3.event.pageX + "px")
+                                .style("top", d3.event.pageY + "px")
+                                .style("opacity", 1)
+                            slice.select("#value")
+                                .text(data[slideValue].stanovnik.ostala + " l/stan")
+                            slice.select("#vrsta")
+                                .text("Ostala Vina")
+                        })
+                            .on("mouseout", function () {
+                            d3.select("#tooltip")
+                                .style("opacity", 0)
+                        })
+
+            barGroup.selectAll(".ostala")
+                    .transition()
+                    .delay(function(d) {
+                        return Math.random()*1000
+                    })
+                    .duration(1000)
+                    .attr("y", function(d) {
+                        return yScale(data[slideValue].stanovnik.ostala)
+                    })
+                    .attr("height", function(d) {
+                        return height - yScale(data[slideValue].stanovnik.ostala)
+                    })
+        }
+    </script>
+    <div id="slider" style="width: 30em; margin-left: 67em; margin-bottom: 5em;">
+        <div id="custom-handle" class="ui-slider-handle"></div>
+    </div>
+
+    <div id="tooltip" class="hidden">
+        <p><strong><span id="vrsta"></span></strong></p>
+        <p><span id="value"></span></p>
+    </div>
+</body>
+</html>

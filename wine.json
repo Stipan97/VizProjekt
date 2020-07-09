@@ -1,0 +1,198 @@
+[{
+    "godina": 2012,
+    "proizvodnja": {
+		"ukupno": 1293.00,
+		"zasticena": 439.60,
+		"sortna": 50.40,
+		"ostala": 803.00
+	},
+    "potrosnja": {
+		"ukupno": 1754.26,
+		"zasticena": 705.63,
+		"sortna": 69.16,
+		"ostala": 975.01
+	},
+	"uvoz": {
+		"ukupno": 158.03,
+		"zasticena": 15.86,
+		"sortna": 1.98,
+		"ostala": 135.73
+	},
+	"izvoz": {
+		"ukupno": 53.07,
+		"zasticena": 6.53,
+		"sortna": 1.22,
+		"ostala": 45.32
+	},
+	"stanovnik": {
+		"ukupno": 38.94,
+		"zasticena": 16.35,
+		"sortna": 1.61,
+		"ostala": 20.87
+	}
+},
+{
+    "godina": 2013,
+    "proizvodnja": {
+		"ukupno": 1249.00,
+		"zasticena": 426.10,
+		"sortna": 48.00,
+		"ostala": 774.90
+	},
+    "potrosnja": {
+		"ukupno": 1335.14,
+		"zasticena": 369.24,
+		"sortna": 38.92,
+		"ostala": 920.20
+	},
+	"uvoz": {
+		"ukupno": 201.21,
+		"zasticena": 18.30,
+		"sortna": 3.11,
+		"ostala": 173.02
+	},
+	"izvoz": {
+		"ukupno": 32.31,
+		"zasticena": 28.06,
+		"sortna": 1.55,
+		"ostala": 2.70
+	},
+	"stanovnik": {
+		"ukupno": 29.35,
+		"zasticena": 8.64,
+		"sortna": 0.91,
+		"ostala": 19.64
+	}
+},
+{
+    "godina": 2014,
+    "proizvodnja": {
+		"ukupno": 842.00,
+		"zasticena": 399.48,
+		"sortna": 42.18,
+		"ostala": 400.34
+	},
+    "potrosnja": {
+		"ukupno": 1158.85,
+		"zasticena": 450.08,
+		"sortna": 60.41,
+		"ostala": 639.97
+	},
+	"uvoz": {
+		"ukupno": 262.02,
+		"zasticena": 17.80,
+		"sortna": 16.67,
+		"ostala": 219.16
+	},
+	"izvoz": {
+		"ukupno": 41.96,
+		"zasticena": 30.30,
+		"sortna": 1.58,
+		"ostala": 10.08
+	},
+	"stanovnik": {
+		"ukupno": 25.91,
+		"zasticena": 10.63,
+		"sortna": 1.43,
+		"ostala": 13.65
+	}
+},
+{
+    "godina": 2015,
+    "proizvodnja": {
+		"ukupno": 992.00,
+		"zasticena": 529.13,
+		"sortna": 56.61,
+		"ostala": 406.26
+	},
+    "potrosnja": {
+		"ukupno": 1207.01,
+		"zasticena": 504.58,
+		"sortna": 54.22,
+		"ostala": 639.89
+	},
+	"uvoz": {
+		"ukupno": 304.32,
+		"zasticena": 18.20,
+		"sortna": 16.03,
+		"ostala": 261.77
+	},
+	"izvoz": {
+		"ukupno": 44.07,
+		"zasticena": 38.77,
+		"sortna": 1.66,
+		"ostala": 3.64
+	},
+	"stanovnik": {
+		"ukupno": 27.34,
+		"zasticena": 12.04,
+		"sortna": 1.29,
+		"ostala": 13.81
+	}
+},
+{
+    "godina": 2016,
+    "proizvodnja": {
+		"ukupno": 760.00,
+		"zasticena": 449.76,
+		"sortna": 48.37,
+		"ostala": 261.87
+	},
+    "potrosnja": {
+		"ukupno": 1002.83,
+		"zasticena": 407.05,
+		"sortna": 76.98,
+		"ostala": 509.12
+	},
+	"uvoz": {
+		"ukupno": 295.74,
+		"zasticena": 17.61,
+		"sortna": 14.06,
+		"ostala": 254.39
+	},
+	"izvoz": {
+		"ukupno": 54.05,
+		"zasticena": 45.36,
+		"sortna": 3.95,
+		"ostala": 4.74
+	},
+	"stanovnik": {
+		"ukupno": 22.51,
+		"zasticena": 9.8,
+		"sortna": 1.85,
+		"ostala": 10.62
+	}
+},
+{
+    "godina": 2017,
+    "proizvodnja": {
+		"ukupno": 726.00,
+		"zasticena": 470.29,
+		"sortna": 29.79,
+		"ostala": 225.92
+	},
+    "potrosnja": {
+		"ukupno": 984.73,
+		"zasticena": 480.69,
+		"sortna": 35.18,
+		"ostala": 468.86
+	},
+	"uvoz": {
+		"ukupno": 232.86,
+		"zasticena": 28.19,
+		"sortna": 7.64,
+		"ostala": 197.03
+	},
+	"izvoz": {
+		"ukupno": 49.52,
+		"zasticena": 36.95,
+		"sortna": 5.93,
+		"ostala": 6.64
+	},
+	"stanovnik": {
+		"ukupno": 22.21,
+		"zasticena": 11.81,
+		"sortna": 0.86,
+		"ostala": 9.72
+	}
+}]
